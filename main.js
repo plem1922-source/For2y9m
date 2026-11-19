@@ -521,6 +521,7 @@
     $('#openBtn').addEventListener('click', (e) => {
       const r = e.currentTarget.getBoundingClientRect();
       burst(r.left + r.width / 2, r.top, 18, 150);
+      startMusic();
       go('cards', () => showCard(0));
     });
 
