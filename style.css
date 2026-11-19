@@ -1,0 +1,566 @@
+/* ==========================================================
+   style.css — Anniversary for Min
+   โครง: 1) ตัวแปร  2) พื้นฐาน  3) ฉาก  4) คอมโพเนนต์  5) เอฟเฟกต์
+   ========================================================== */
+
+/* ---------- 1) ตัวแปรสี / ขนาด ---------- */
+:root {
+  --mint-50:  #f0fbf5;
+  --mint-100: #dff5ea;
+  --mint-200: #c4ecd9;
+  --mint-300: #a3e0c2;
+  --mint-400: #7fd1ae;
+  --mint-600: #3f9f7d;
+  --mint-800: #24594a;
+
+  --cream:   #fff8ec;
+  --cream-2: #fbeed6;
+
+  --pink-100: #ffe8ee;
+  --pink-200: #ffd0dc;
+  --pink-300: #ffb3c6;
+  --pink-400: #ff94b0;
+  --pink-500: #ff6f95;
+
+  --ink:      #3d5249;
+  --ink-soft: #6b8178;
+
+  --font-th:     'Mali', 'Sarabun', 'Noto Sans Thai', 'Loma', system-ui, sans-serif;
+  --font-script: 'Pacifico', 'Brush Script MT', cursive;
+
+  --card-w: min(88vw, 380px);
+  --card-h: clamp(220px, 34vh, 310px);
+  --pmax:   27vh;           /* ความสูงสูงสุดของรูปในโพลารอยด์ */
+  --pmaxw:  min(62vw, 270px);
+}
+@media (min-width: 700px) {
+  :root {
+    --card-w: 440px;
+    --card-h: clamp(260px, 32vh, 340px);
+    --pmax:   34vh;
+    --pmaxw:  320px;
+  }
+}
+@media (max-height: 560px) {
+  :root { --card-h: 200px; --pmax: 30vh; }
+}
+
+/* ---------- 2) พื้นฐาน ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--cream);
+}
+body {
+  font-family: var(--font-th);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button { font: inherit; color: inherit; }
+img { -webkit-user-drag: none; user-select: none; }
+
+#app {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* พื้นหลัง: ไล่สีมิ้นต์-ครีม-ชมพู + ลายจุดเล็ก ๆ */
+#bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60vmax 60vmax at 8% 0%,    var(--mint-100) 0%, transparent 62%),
+    radial-gradient(55vmax 55vmax at 100% 18%, var(--pink-100) 0%, transparent 62%),
+    radial-gradient(75vmax 75vmax at 45% 112%, var(--mint-200) 0%, transparent 62%),
+    var(--cream);
+}
+#bg::before {            /* ลายจุด */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(63, 159, 125, .13) 1.5px, transparent 1.7px);
+  background-size: 26px 26px;
+}
+#bg::after {             /* โทนชมพูของฉากสุดท้าย */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70vmax 70vmax at 50% 38%, #fff0f4 0%, transparent 65%),
+    radial-gradient(60vmax 60vmax at 0% 100%, var(--pink-200) 0%, transparent 60%),
+    radial-gradient(60vmax 60vmax at 100% 0%, var(--pink-200) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+#app[data-scene="final"] #bg::after { opacity: 1; }
+
+/* ---------- 3) ฉาก ---------- */
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding:
+    max(18px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(18px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(.96);
+  filter: blur(6px);
+  transition: opacity .6s ease, transform .6s ease, filter .6s ease, visibility 0s .6s;
+  z-index: 10;
+}
+.scene.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  filter: none;
+  transition: opacity .6s ease, transform .6s ease, filter .6s ease, visibility 0s;
+}
+.scene-inner {
+  margin: auto;                 /* จัดกึ่งกลาง แต่ยังเลื่อนได้ถ้าจอเตี้ยมาก */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2vh, 18px);
+  text-align: center;
+  width: 100%;
+  max-width: 520px;
+}
+
+/* ---------- 4) คอมโพเนนต์ ---------- */
+
+/* ปุ่มหลัก */
+.btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  min-height: 48px;
+  padding: .75em 1.7em;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pink-400), var(--pink-500));
+  box-shadow: 0 8px 20px rgba(255, 111, 149, .35), inset 0 -3px 0 rgba(0, 0, 0, .08);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.btn:hover  { transform: translateY(-2px); }
+.btn:active { transform: scale(.94); }
+.btn:focus-visible, .card:focus-visible, .cover-btn:focus-visible {
+  outline: 3px solid var(--mint-600);
+  outline-offset: 4px;
+}
+.btn.ghost {
+  color: var(--pink-500);
+  background: rgba(255, 255, 255, .8);
+  box-shadow: 0 6px 16px rgba(255, 111, 149, .2), inset 0 0 0 2px var(--pink-300);
+}
+.btn.pulse { animation: btn-pulse 2.2s ease-in-out infinite; }
+@keyframes btn-pulse {
+  0%, 100% { box-shadow: 0 8px 20px rgba(255, 111, 149, .35), 0 0 0 0 rgba(255, 111, 149, .45), inset 0 -3px 0 rgba(0,0,0,.08); }
+  50%      { box-shadow: 0 8px 20px rgba(255, 111, 149, .35), 0 0 0 14px rgba(255, 111, 149, 0), inset 0 -3px 0 rgba(0,0,0,.08); }
+}
+.btn[hidden] { display: none; }
+
+/* โพลารอยด์ (รูปตกแต่ง ไม่มีคำบรรยาย) */
+.polaroid {
+  position: relative;
+  margin: 0;
+  padding: 10px 10px 30px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 12px 28px rgba(60, 90, 80, .22), 0 2px 6px rgba(60, 90, 80, .12);
+  transform: rotate(var(--tilt, 0deg));
+  max-width: 100%;
+}
+.polaroid::before {                /* เทปกาวสีมิ้นต์ */
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 78px;
+  height: 22px;
+  background: rgba(163, 224, 194, .82);
+  border-left: 2px dotted rgba(255, 255, 255, .7);
+  border-right: 2px dotted rgba(255, 255, 255, .7);
+  transform: translateX(-50%) rotate(-3deg);
+  z-index: 2;
+}
+.polaroid::after {                 /* หัวใจเล็กที่มุมล่าง */
+  content: "♥";
+  position: absolute;
+  right: 12px;
+  bottom: 5px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--pink-300);
+}
+.polaroid img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: var(--pmaxw);
+  max-height: var(--pmax);
+  border-radius: 3px;
+}
+.polaroid .ph {                    /* ช่องว่างรอใส่รูป */
+  display: grid;
+  place-items: center;
+  width: 170px;
+  aspect-ratio: 4 / 5;
+  border-radius: 3px;
+  background: repeating-linear-gradient(45deg, var(--mint-100), var(--mint-100) 10px, var(--mint-50) 10px, var(--mint-50) 20px);
+}
+.polaroid .ph svg { width: 44px; opacity: .7; }
+
+/* --- ฉาก 1 : หน้าเปิด --- */
+.intro-inner { gap: clamp(8px, 1.8vh, 16px); }
+.kicker {
+  margin: 0;
+  font-family: var(--font-script);
+  font-size: clamp(2.1rem, 10.5vw, 3.4rem);
+  line-height: 1.2;
+  color: var(--pink-500);
+  text-shadow: 0 3px 0 #fff, 0 8px 18px rgba(255, 111, 149, .25);
+  animation: float-y 4s ease-in-out infinite;
+}
+.cover-btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 10px;
+  cursor: pointer;
+  --pmaxw: min(78vw, 360px);
+  --pmax: 38vh;
+}
+.cover-btn.wiggle { animation: wiggle .7s ease; }
+.badge {
+  display: inline-block;
+  padding: .35em 1.3em;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--mint-300), var(--mint-400));
+  color: var(--mint-800);
+  font-weight: 700;
+  font-size: clamp(1.15rem, 5vw, 1.5rem);
+  letter-spacing: .02em;
+  box-shadow: 0 8px 18px rgba(63, 159, 125, .28), inset 0 0 0 3px rgba(255, 255, 255, .7);
+}
+.for-who {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+/* --- ฉาก 2 : การ์ด --- */
+.cards-inner { gap: clamp(10px, 2vh, 18px); }
+.dots {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  height: 18px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--mint-200);
+  transition: transform .4s ease, background .4s ease;
+}
+.dot.done    { background: var(--pink-300); }
+.dot.current { background: var(--pink-500); transform: scale(1.5); }
+
+.card-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.card {
+  position: relative;
+  width: var(--card-w);
+  perspective: 1400px;
+  cursor: pointer;
+  outline-offset: 6px;
+}
+.card-inside {
+  position: relative;
+  min-height: var(--card-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 30px 26px;
+  border-radius: 20px;
+  background:
+    linear-gradient(#fffdf7, #fff8ec);
+  box-shadow: 0 14px 32px rgba(60, 90, 80, .2);
+}
+.card-inside::before {              /* กรอบประภายใน */
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 2px dashed var(--mint-300);
+  border-radius: 14px;
+  pointer-events: none;
+}
+.card-text {
+  position: relative;
+  font-size: clamp(1.18rem, 4.7vw, 1.55rem);
+  font-weight: 500;
+  line-height: 1.75;
+  color: var(--mint-800);
+  text-wrap: balance;
+}
+@media (min-width: 700px) { .card-text { font-size: 1.6rem; } }
+.card-text .line {
+  display: block;
+  opacity: 0;
+  transform: translateY(12px);
+}
+.card.open .card-text .line {
+  animation: line-in .8s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation-delay: calc(.75s + var(--i, 0) * .55s);
+}
+.card-heart {
+  width: 26px;
+  opacity: 0;
+  transform: scale(.3);
+}
+.card.open .card-heart {
+  animation: pop-in .6s cubic-bezier(.34, 1.56, .64, 1) 1.3s forwards, beat 1.6s ease-in-out 2s infinite;
+}
+
+.card-cover {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(.5, 0, .2, 1), opacity .5s ease .55s;
+  z-index: 2;
+}
+.card.open .card-cover {
+  transform: rotateY(-150deg);
+  opacity: 0;
+  pointer-events: none;
+}
+.card.open { cursor: default; }
+.cover-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, .55), transparent 40%),
+    linear-gradient(145deg, var(--mint-200), var(--mint-400));
+  box-shadow: 0 14px 32px rgba(63, 159, 125, .35), inset 0 0 0 4px rgba(255, 255, 255, .75);
+}
+.cover-front::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 2px dashed rgba(255, 255, 255, .85);
+  border-radius: 14px;
+}
+.seal {
+  width: 68px;
+  filter: drop-shadow(0 6px 8px rgba(255, 111, 149, .4));
+  animation: beat 1.8s ease-in-out infinite;
+}
+.cover-no {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--mint-800);
+}
+.hint {
+  font-size: .95rem;
+  color: #fff;
+  font-weight: 600;
+  padding: .15em .9em;
+  border-radius: 999px;
+  background: rgba(36, 89, 74, .35);
+  animation: float-y 2.4s ease-in-out infinite;
+}
+.cover-flower { position: absolute; width: 64px; opacity: .95; }
+.cf-tl { top: -14px; left: -14px; }
+.cf-br { bottom: -14px; right: -14px; transform: rotate(30deg); }
+
+.card-photo {                       /* โพลารอยด์ใต้การ์ด โผล่หลังเปิด */
+  margin-top: -26px;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(-90px) scale(.4) rotate(0deg);
+  transition: transform .9s cubic-bezier(.34, 1.56, .64, 1), opacity .4s ease;
+  pointer-events: none;
+}
+.card-photo.show {
+  opacity: 1;
+  transform: rotate(var(--tilt, 0deg));
+}
+.next-btn { animation: pop-in .6s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+/* --- ฉาก 3 : ตัวนับเวลา --- */
+.counter-inner { gap: clamp(8px, 1.6vh, 14px); }
+.counter-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
+  font-weight: 700;
+  color: var(--pink-500);
+  text-shadow: 0 3px 0 #fff;
+}
+.counter-photo { --pmax: 23vh; margin-top: 12px; }
+.since { margin: 0; color: var(--ink-soft); }
+.since b { color: var(--mint-800); }
+.counter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: min(92vw, 380px);
+}
+@media (min-width: 700px) {
+  .counter-grid { grid-template-columns: repeat(6, 1fr); width: 560px; }
+}
+.unit {
+  padding: 10px 4px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .85);
+  box-shadow: 0 6px 14px rgba(60, 90, 80, .12), inset 0 0 0 2px var(--mint-200);
+}
+.unit:nth-child(even) { box-shadow: 0 6px 14px rgba(60, 90, 80, .12), inset 0 0 0 2px var(--pink-200); }
+.unit .num {
+  display: block;
+  font-size: clamp(1.5rem, 7vw, 2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--mint-800);
+  font-variant-numeric: tabular-nums;
+}
+.unit:nth-child(even) .num { color: var(--pink-500); }
+.unit .lbl { font-size: .82rem; color: var(--ink-soft); }
+.total { margin: 0; font-size: 1.05rem; color: var(--ink-soft); }
+.total b { color: var(--pink-500); font-size: 1.35em; font-variant-numeric: tabular-nums; }
+
+/* --- ฉาก 4 : ฉากสุดท้าย --- */
+.final-inner { gap: clamp(14px, 3vh, 26px); }
+.final-photo {
+  --pmax: 34vh;
+  opacity: 0;
+  transform: scale(.4) rotate(0deg);
+}
+.final-photo.show {
+  animation: photo-pop 1s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+.final-text {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.35;
+  max-width: 100%;
+  text-wrap: balance;
+  color: var(--pink-500);
+  text-shadow: 0 4px 0 #fff, 0 10px 24px rgba(255, 111, 149, .35);
+  opacity: 0;
+  transform: scale(.3);
+}
+.final-text.show {
+  animation: pop-in .9s cubic-bezier(.34, 1.56, .64, 1) forwards, beat 1.4s ease-in-out 1s infinite;
+}
+#replayBtn { opacity: 0; }
+#replayBtn.show { animation: pop-in .6s cubic-bezier(.34, 1.56, .64, 1) forwards; }
+
+/* ---------- 5) เอฟเฟกต์ ---------- */
+#deco {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+.deco {
+  position: absolute;
+  width: clamp(68px, 19vw, 110px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 6px 8px rgba(60, 90, 80, .18));
+  animation: sway 5s ease-in-out infinite;
+}
+.deco svg, .cover-flower svg { width: 100%; height: 100%; display: block; }
+.d-tl { top: -18px;    left: -18px; }
+.d-tr { top: -18px;    right: -18px;  animation-delay: -1.2s; }
+.d-bl { bottom: -18px; left: -18px;   animation-delay: -2.4s; }
+.d-br { bottom: -18px; right: -18px;  animation-delay: -3.6s; }
+.deco.spin { animation: spin-once .9s cubic-bezier(.3, 1.4, .5, 1); }
+
+#fx {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fx-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  line-height: 0;
+  will-change: transform, opacity;
+}
+
+#wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  visibility: hidden;
+}
+#wipe.on { visibility: visible; pointer-events: auto; }
+#wipe svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 230vmax;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+/* คีย์เฟรม */
+@keyframes float-y   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes sway      { 0%, 100% { rotate: -5deg; } 50% { rotate: 6deg; } }
+@keyframes beat      { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.16); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } }
+@keyframes pop-in    { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: scale(1); } }
+@keyframes line-in   { to { opacity: 1; transform: none; } }
+@keyframes photo-pop { from { opacity: 0; transform: scale(.4) rotate(0deg); } to { opacity: 1; transform: scale(1) rotate(var(--tilt, 0deg)); } }
+@keyframes wiggle    { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-4deg) scale(1.03); } 40% { transform: rotate(4deg) scale(1.03); } 60% { transform: rotate(-3deg); } 80% { transform: rotate(2deg); } }
+@keyframes spin-once { from { transform: rotate(0) scale(1); } 50% { transform: rotate(200deg) scale(1.25); } to { transform: rotate(360deg) scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene, .scene.active { transition: opacity .3s ease, visibility 0s; filter: none; transform: none; }
+  .btn.pulse, .kicker, .deco, .seal, .hint { animation: none; }
+  .card-cover { transition: opacity .4s ease; }
+  .card.open .card-cover { transform: none; }
+}
