@@ -16,7 +16,7 @@ window.CONFIG = {
   opening: {
     kicker: "Happy Anniversary",
     duration: "2 Years & 9 Months",
-    forWho: "สำหรับมิน",
+    forWho: "ของมินคนเดียว",
     buttonText: "เปิดดูเซอร์ไพรส์ 💌"
   },
 
@@ -49,7 +49,7 @@ window.CONFIG = {
       tilt: 4
     },
     {
-      lines: ["ถึงบางทีหนูจะเหนื่อยหรือเจอเรื่องไม่ดี พี่ก็อยากอยู่กับหนู"],
+      lines: ["ถึงบางทีหนูจะเหนื่อยหรือเจอเรื่องไม่ดีมา พี่ก็จะอยู่กับหนูตลอด"],
       photo: "photo-3.jpg",   // โรแมนติก — เงาจูงมือบนหาดทราย
       tilt: -3
     },
